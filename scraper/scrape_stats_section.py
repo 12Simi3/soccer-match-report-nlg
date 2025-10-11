@@ -1,0 +1,89 @@
+import asyncio, json, re
+from pathlib import Path
+from playwright.async_api import async_playwright
+
+URL = "https://www.livesport.cz/zapas/fotbal/sparta-praha-6qA358jH/zbrojovka-brno-4d5TT6i5/?mid=StyIyb9D#/prehled-zapasu/prehled-zapasu"
+OUT = Path("data/match_stats.json")
+OUT.parent.mkdir(parents=True, exist_ok=True)
+
+ROOT       = ".container__livetable"
+TABS_WRAP  = f"{ROOT} [data-testid='wcl-tabs']"
+TAB_STATS  = f"{TABS_WRAP} a[data-analytics-alias='match-statistics']"
+
+SCOPE_STATS = '[data-analytics-context="tab-match-statistics"]'
+ROW         = f'{SCOPE_STATS} [data-testid="wcl-statistics"]'
+CAT         = '[data-testid="wcl-statistics-category"]'
+VALS        = '[data-testid="wcl-statistics-value"]'
+
+RE_SCORE = re.compile(r"(\d+)\s*[-:]\s*(\d+)")
+
+def norm(s: str) -> str:
+    return re.sub(r"\s+", " ", (s or "")).strip()
+
+async def main():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=False)
+        page = await browser.new_page()
+        try:
+            await page.goto(URL, wait_until="networkidle", timeout=60000)
+
+            # Click the "Statistiky" tab
+            try:
+                await page.click(TAB_STATS, timeout=2000)
+            except:
+                await page.get_by_role("link", name=re.compile("Statistiky|Statistics", re.I)).click(timeout=3000)
+
+            # Wait until any stat row appears
+            await page.wait_for_selector(ROW, timeout=8000)
+
+            # ===== header extraction (date, home, away, result) =====
+            date_txt = (await page.locator(f"{ROOT} .duelParticipant__startTime").first.text_content() or "").strip()
+            if not date_txt:
+                date_txt = await page.locator(f"{ROOT} time[datetime]").first.get_attribute("datetime")
+
+            home = (await page.locator(f"{ROOT} .duelParticipant__home [class*='participantName']").first.text_content() or "").strip()
+            if not home:
+                home = norm(await page.locator(f"{ROOT} .duelParticipant__home").first.inner_text() or "")
+
+            away = (await page.locator(f"{ROOT} .duelParticipant__away [class*='participantName']").first.text_content() or "").strip()
+            if not away:
+                away = norm(await page.locator(f"{ROOT} .duelParticipant__away").first.inner_text() or "")
+
+            # RESULT: read text from the score block and normalize to "X-Y"
+            score_text = (await page.locator(f"{ROOT} .duelParticipant__score").first.inner_text() or "").strip()
+            m = RE_SCORE.search(score_text.replace("\n", " "))
+            result = f"{m.group(1)}-{m.group(2)}" if m else ""
+            # ========================================================
+
+            stats = {}
+            rows = page.locator(ROW)
+            n = await rows.count()
+
+            for i in range(n):
+                r = rows.nth(i)
+                label = norm(await r.locator(CAT).text_content())
+
+                # Always: first value = home (left), second = away (right)
+                cells = r.locator(VALS)
+                cnt = await cells.count()
+                home_val = norm(await cells.nth(0).text_content()) if cnt > 0 else ""
+                away_val = norm(await cells.nth(1).text_content()) if cnt > 1 else ""
+
+                if label:
+                    stats[label] = {"home": home_val, "away": away_val}
+
+        finally:
+            await browser.close()
+
+    payload = {
+        "date": date_txt,
+        "home": home,
+        "away": away,
+        "result": result,          # <-- added final result here
+        "statistics": stats
+    }
+    OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+
+if __name__ == "__main__":
+    asyncio.run(main())

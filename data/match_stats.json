@@ -1,0 +1,56 @@
+{
+  "date": "02.04.2023 16:00",
+  "home": "Sparta Praha",
+  "away": "Zbrojovka Brno",
+  "result": "3-1",
+  "statistics": {
+    "Držení míče": {
+      "home": "65%",
+      "away": "35%"
+    },
+    "Střely celkem": {
+      "home": "14",
+      "away": "8"
+    },
+    "Střely na branku": {
+      "home": "7",
+      "away": "2"
+    },
+    "Rohové kopy": {
+      "home": "7",
+      "away": "1"
+    },
+    "Žluté karty": {
+      "home": "3",
+      "away": "3"
+    },
+    "Střely mimo branku": {
+      "home": "6",
+      "away": "4"
+    },
+    "Zblokované střely": {
+      "home": "1",
+      "away": "2"
+    },
+    "Ofsajdy": {
+      "home": "2",
+      "away": "4"
+    },
+    "Přímé kopy": {
+      "home": "14",
+      "away": "18"
+    },
+    "Vhazování": {
+      "home": "25",
+      "away": "25"
+    },
+    "Fauly": {
+      "home": "16",
+      "away": "9"
+    },
+    "Brankářské zákroky": {
+      "home": "1",
+      "away": "4"
+    }
+  }
+}
