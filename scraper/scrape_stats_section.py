@@ -87,7 +87,7 @@ async def main():
         "date": date_txt,
         "home": home,
         "away": away,
-        "result": result,          # <-- added final result here
+        "result": result,
         "statistics": stats
     }
     OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")

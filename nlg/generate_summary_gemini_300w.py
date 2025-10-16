@@ -21,7 +21,7 @@ def build_prompt(data: dict) -> str:
         "o přibližně 300 slovech. Článek musí obsahovat datum, soupeře, "
         "finální skóre, rozdané žluté a červené karty a penalty. "
         "Ve zbytku textu vypiš ostatní statistiky jako držení míče,"
-        "střely celkem, střely na branku, rohové kopy, střely mimo branku, obsajdy,"
+        "střely celkem, střely na branku, rohové kopy, střely mimo branku, ofsajdy,"
         "přímé kopy, vhazování, fauly a brankářské zákroky a další statistiky."
         "Nepřidávej nic, co v datech není. Bez nadpisu, žádné odrážky, žádná tabulka.\n"
         f"DATa: {json.dumps(data, ensure_ascii=False)}"
