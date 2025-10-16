@@ -1,8 +1,8 @@
 # soccer-match-report-nlg
 
-## ⚽ Football Match Report Generator
+## Football Match Report Generator
 
-This repository contains a small Python prototype that automatically generates a **short article (~300 words)** summarizing a football match from **scraped data** (date and venue, teams, result, goals, cards, penalties, etc.).
+This repository contains a small Python prototype that automatically generates a **short article (~300 words)** summarizing a football match from **scraped data**.
 
 The goal is to create a **concise and readable match summary** that includes:
 

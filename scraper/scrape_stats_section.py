@@ -27,16 +27,24 @@ async def main():
         try:
             await page.goto(URL, wait_until="networkidle", timeout=60000)
 
-            # Click the "Statistiky" tab
-            try:
-                await page.click(TAB_STATS, timeout=2000)
-            except:
-                await page.get_by_role("link", name=re.compile("Statistiky|Statistics", re.I)).click(timeout=3000)
+            # 0) Dismiss consent/overlays that can capture clicks
+            for sel in [
+                "button:has-text('Souhlasím')",
+                "button:has-text('Accept all')",
+                "[data-testid='uc-accept-all-button']",
+            ]:
+                try:
+                    await page.locator(sel).first.click(timeout=1500)
+                except:
+                    pass
 
-            # Wait until any stat row appears
+            await page.wait_for_selector(TABS_WRAP)
+            await page.mouse.wheel(0, 400)  # scroll down
+            await page.wait_for_timeout(200)  # small settle
+            await page.locator(TAB_STATS).first.click(timeout=4000)
             await page.wait_for_selector(ROW, timeout=8000)
 
-            # ===== header extraction (date, home, away, result) =====
+            # header extraction (date, home, away, result)
             date_txt = (await page.locator(f"{ROOT} .duelParticipant__startTime").first.text_content() or "").strip()
             if not date_txt:
                 date_txt = await page.locator(f"{ROOT} time[datetime]").first.get_attribute("datetime")
