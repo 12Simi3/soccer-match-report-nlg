@@ -18,12 +18,13 @@ def limit_words(text: str, n: int = 320) -> str:
 def build_prompt(data: dict) -> str:
     return (
         "Jsi sportovní redaktor. Z následujících DAT napiš česky souvislý článek "
-        "o přibližně 300 slovech. Článek musí obsahovat datum, soupeře, "
-        "finální skóre, rozdané žluté a červené karty a penalty. "
-        "Ve zbytku textu vypiš ostatní statistiky jako držení míče,"
+        "Článek musí obsahovat datum, soupeře, finální skóre, rozdané žluté a červené karty a penalty."
+        "Poté popiš detailněji i ostatní statistiky jako držení míče,"
         "střely celkem, střely na branku, rohové kopy, střely mimo branku, ofsajdy,"
         "přímé kopy, vhazování, fauly a brankářské zákroky a další statistiky."
-        "Nepřidávej nic, co v datech není. Bez nadpisu, žádné odrážky, žádná tabulka.\n"
+        "Nakonec přidej shnutí zápasu v jedné větě."
+        "Nepřidávej nic, co v datech není. Bez nadpisu, žádné odrážky, žádná tabulka."
+        "Piš plynule, používej přechody mezi větami.\n"
         f"DATa: {json.dumps(data, ensure_ascii=False)}"
     )
 
@@ -48,7 +49,7 @@ def main():
 
     print(text)
     Path("data").mkdir(exist_ok=True)
-    Path("data/summary_300wl.txt").write_text(text, encoding="utf-8")
+    Path("data/summary_300w.txt").write_text(text, encoding="utf-8")
 
 if __name__ == "__main__":
     main()
